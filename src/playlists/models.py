@@ -25,6 +25,8 @@ class PlaylistManager(models.Manager):
         return self.get_queryset().published()
 
 class Playlist(models.Model):
+    parent = models.ForeignKey("self", null=True, on_delete=models.SET_NULL)
+    order = models.IntegerField(default=1)
     title = models.CharField(max_length=220)
     description = models.TextField(blank=True, null=True)
     slug = models.SlugField(blank=True, null=True)
@@ -37,6 +39,9 @@ class Playlist(models.Model):
     publish_timestamp = models.DateTimeField(auto_now_add=False, auto_now=False, blank=True, null=True)
 
     objects = PlaylistManager()
+    
+    def __str__(self):
+        return self.title
     
     @property
     def is_published(self):
@@ -53,5 +58,35 @@ class PlaylistItem(models.Model):
         ordering = ['order', '-timestamp']
         
         
+class TVShowProxyManager(PlaylistManager):
+    def all(self):
+        return self.get_queryset().filter(parent__isnull=True)
+
+
+class TVShowProxy(Playlist):
+
+    objects = TVShowProxyManager()
+
+    class Meta:
+        verbose_name = 'TV Show'
+        verbose_name_plural = 'TV Shows'
+        proxy = True
+
+
+class TVShowSeasonProxyManager(PlaylistManager):
+    def all(self):
+        return self.get_queryset().filter(parent__isnull=False)
+
+
+class TVShowSeasonProxy(Playlist):
+
+    objects = TVShowSeasonProxyManager()
+
+    class Meta:
+        verbose_name = 'Season'
+        verbose_name_plural = 'Seasons'
+        proxy = True
+
+
 pre_save.connect(publish_state_pre_save, sender=Playlist)
 pre_save.connect(slugify_pre_save, sender=Playlist)
