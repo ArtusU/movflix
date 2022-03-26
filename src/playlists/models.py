@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models.signals import pre_save
 from django.utils import timezone
@@ -7,6 +8,7 @@ from movflix.db.models import PublishStateOptions
 from movflix.db.receivers import publish_state_pre_save, slugify_pre_save
 
 from videos.models import Video
+from tags.models import TaggedItem
 from categories.models import Category
 
 
@@ -46,6 +48,7 @@ class Playlist(models.Model):
     updated = models.DateTimeField(auto_now=True)
     state = models.CharField(max_length=2, choices=PublishStateOptions.choices, default=PublishStateOptions.DRAFT)
     publish_timestamp = models.DateTimeField(auto_now_add=False, auto_now=False, blank=True, null=True)
+    tags = GenericRelation(TaggedItem, related_query_name='playlist')
 
     objects = PlaylistManager()
     
