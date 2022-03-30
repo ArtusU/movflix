@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'playlists',
     'videos',
     'categories',
+    'ratings',
     'tags',
 ]
 
