@@ -14,7 +14,7 @@
 
 <ul>
   {% for instance in object_list %}
-  <li>{{ instance.title }} {{ instance.get_short_display }}</li>
+  <li>{{ instance.title }} {{ instance.get_short_display }} {{ instance.slug }}</li>
   {% endfor %}
 </ul>
 
