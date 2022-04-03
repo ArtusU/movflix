@@ -70,10 +70,37 @@ class Playlist(models.Model):
     def get_short_display(self):
         return ""
     
+    def get_video_id(self):
+        if self.video is None:
+            return None
+        return self.video.get_video_id()
+
+    def get_clips(self):
+        return self.playlistitem_set.all().published()
+
     @property
     def is_published(self):
         return self.active
         
+        
+class PlaylistItemQuerySet(models.QuerySet):
+    def published(self):
+        now = timezone.now()
+        return self.filter(
+            playlist__state=PublishStateOptions.PUBLISH,
+            playlist__publish_timestamp__lte= now,
+            video__state=PublishStateOptions.PUBLISH,
+            video__publish_timestamp__lte= now 
+        )
+
+
+class PlaylistItemManager(models.Manager):
+    def get_queryset(self):
+        return PlaylistItemQuerySet(self.model, using=self._db)
+
+    def published(self):
+        return self.get_queryset().published()
+            
         
 class PlaylistItem(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
@@ -85,8 +112,6 @@ class PlaylistItem(models.Model):
         ordering = ['order', '-timestamp']
         
         
-        
-        
 class MovieProxyManager(PlaylistManager):
     def all(self):
         return self.get_queryset().filter(type=Playlist.PlaylistTypeChoices.MOVIE)
@@ -95,6 +120,9 @@ class MovieProxyManager(PlaylistManager):
 class MovieProxy(Playlist):
 
     objects = MovieProxyManager()
+    
+    def get_movie_id(self):
+        return self.get_video_id()
 
     class Meta:
         verbose_name = 'Movie'
@@ -149,6 +177,12 @@ class TVShowSeasonProxy(Playlist):
     def save(self, *args, **kwargs):
         self.type = Playlist.PlaylistTypeChoices.SEASON
         super().save(*args, **kwargs)
+        
+    def get_season_trailer(self):
+        return self.get_video_id()
+
+    def get_episodes(self):
+        return self.playlistitem_set.all().published()
 
 
 pre_save.connect(publish_state_pre_save, sender=TVShowProxy)
