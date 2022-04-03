@@ -26,8 +26,8 @@ class VideoModelTestCase(TestCase):
         self.assertEqual(qs.count(), 2)
         
     def test_draft_case(self):
-        qs = Video.objects.filter(state=PublishStateOptions.DRAFT)
-        self.assertEqual(qs.count(), 1)
+        obj = Video.objects.filter(state=PublishStateOptions.DRAFT).first()
+        self.assertFalse(obj.is_published)
 
     def test_publish_case(self):
         qs = Video.objects.filter(state=PublishStateOptions.PUBLISH)
@@ -37,7 +37,11 @@ class VideoModelTestCase(TestCase):
             publish_timestamp__lte= now 
         )
         self.assertTrue(published_qs.exists())
-        
+
+    def test_publish_case(self):
+        obj = Video.objects.filter(state=PublishStateOptions.PUBLISH).first()
+        self.assertTrue(obj.is_published)
+
     def test_publish_manager(self):
         published_qs = Video.objects.all().published()
         published_qs_2 = Video.objects.published()
