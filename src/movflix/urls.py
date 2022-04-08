@@ -21,8 +21,8 @@ urlpatterns = [
     
     path('media/<int:pk>/', PlaylistDetailView.as_view()),
     
-    # path('category/', include('categories.urls')),
-    # path('categories/', include('categories.urls')),
+    path('category/', include('categories.urls')),
+    path('categories/', include('categories.urls')),
     
     # path('search/', SearchView.as_view()),
     
