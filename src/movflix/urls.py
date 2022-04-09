@@ -4,6 +4,7 @@ from django.urls import path, include
 from playlists.views import (
     MovieListView, 
     TVShowListView, 
+    SearchView,
     FeaturedPlaylistListView, 
     MovieDetailView, 
     PlaylistDetailView,
@@ -24,7 +25,7 @@ urlpatterns = [
     path('category/', include('categories.urls')),
     path('categories/', include('categories.urls')),
     
-    # path('search/', SearchView.as_view()),
+    path('search/', SearchView.as_view()),
     
     path('shows/<slug:showSlug>/seasons/<slug:seasonSlug>/', TVShowSeasonDetailView.as_view()),
     path('shows/<slug:slug>/seasons/', TVShowDetailView.as_view()),
